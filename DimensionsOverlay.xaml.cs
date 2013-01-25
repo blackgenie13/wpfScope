@@ -22,5 +22,23 @@ namespace wpfScope
         {
             InitializeComponent();
         }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            CloseButton.Click += CloseButton_Click;
+            TitleBar.MouseLeftButtonDown += TitleBar_MouseLeftButtonDown;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
     }
 }
