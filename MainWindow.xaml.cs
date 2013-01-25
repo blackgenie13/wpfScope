@@ -19,9 +19,43 @@ namespace wpfScope
     /// </summary>
     public partial class MainWindow : Window
     {
+        private DimensionsOverlay DimensionsOverlayWindow { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (DimensionsOverlayWindow != null)
+            {
+                DimensionsOverlayWindow.Close();
+            }
+
+            base.OnClosing(e);
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+        }
+
+        private void OpenDimensionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            DimensionsOverlayWindow = new DimensionsOverlay();
+            DimensionsOverlayWindow.Show();
+
+            OpenDimensionsButton.IsEnabled = false;
+            CloseDimensionsButton.IsEnabled = true;
+        }
+
+        private void CloseDimensionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            DimensionsOverlayWindow.Close();
+
+            OpenDimensionsButton.IsEnabled = true;
+            CloseDimensionsButton.IsEnabled = false;
         }
     }
 }
