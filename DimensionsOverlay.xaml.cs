@@ -1,44 +1,83 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using MahApps.Metro.Controls;
 
 namespace wpfScope
 {
     /// <summary>
     /// Interaction logic for DimensionsOverlay.xaml
     /// </summary>
-    public partial class DimensionsOverlay : Window
+    public partial class DimensionsOverlay : MetroWindow
     {
+        private object _lock = new object(); // NO HEISENBUGS.
+        private bool _shouldUpdateAnalysis;
+        private BackgroundWorker _updateAnalysisWorker;
+
         public DimensionsOverlay()
         {
             InitializeComponent();
+
+            _updateAnalysisWorker = new BackgroundWorker();
+            _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
+            _updateAnalysisWorker.RunWorkerAsync(this);
         }
 
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
 
-            CloseButton.Click += CloseButton_Click;
-            TitleBar.MouseLeftButtonDown += TitleBar_MouseLeftButtonDown;
+            DisableAnalysisUpdate();
+
+            _startUpdatingButton.Click += (sStart, eStart) => { EnableAnalysisUpdate(); };
+            _stopUpdatingButton.Click += (sStop, eStop) => { DisableAnalysisUpdate(); };
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private void DisableAnalysisUpdate()
         {
-            Application.Current.Shutdown();
+            lock (_lock)
+            {
+                _shouldUpdateAnalysis = false;
+            }
         }
 
-        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void EnableAnalysisUpdate()
         {
-            DragMove();
+            lock (_lock)
+            {
+                _shouldUpdateAnalysis = true;
+            }
         }
+
+        #region Update Background Worker Handlers
+
+        private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // Do this every 500ms.
+            while (true)
+            {
+                bool shouldUpdateAnalysis;
+                lock (_lock)
+                {
+                    shouldUpdateAnalysis = _shouldUpdateAnalysis;
+                }
+
+                if (shouldUpdateAnalysis)
+                {
+                    var window = e.Argument as DimensionsOverlay;
+
+                    if (window != null)
+                    {
+                        // Actually update the analysis.
+                        System.Diagnostics.Debug.WriteLine("Updating analysis...");
+                    }
+                }
+
+                System.Threading.Thread.Sleep(500);
+            }
+        }
+
+        #endregion
     }
 }
