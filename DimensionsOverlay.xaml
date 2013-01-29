@@ -25,21 +25,18 @@
                     <!--Line x:Name="HorizontalAxis" X1="10" Y1="30" X2="100" Y2="30" Stroke="Red" />
                     <Line x:Name="VerticalAxis" X1="55" Y1="10" X2="55" Y2="50" Stroke="Red" /-->
                 </Canvas>
-                <TextBlock Grid.Column="0" x:Name="WindowFrameTextBlock"
+                <TextBlock Grid.Column="0" x:Name="_windowFrameTextBlock" x:FieldModifier="private"
                            Background="Gray" Foreground="White"
                            Margin="10" Padding="3" 
-                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                           Visibility="Hidden" />
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom" />
                 <Button Grid.Column="0" x:Name="_startUpdatingButton" x:FieldModifier="private"
                         Content="Start"
                         Margin="10"
-                        HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                        Visibility="Hidden" />
+                        HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                 <Button Grid.Column="0" x:Name="_stopUpdatingButton" x:FieldModifier="private"
                         Content="Stop"
                         Margin="10" 
-                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                        Visibility="Hidden" />
+                        HorizontalAlignment="Right" VerticalAlignment="Bottom" />
                 <Rectangle Grid.Column="1" Fill="White" />
                 <Image Grid.Column="1" x:Name="Screenshot" Source="{Binding Analyzer.ScreenshotImage}" />
             </Grid>

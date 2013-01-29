@@ -14,6 +14,11 @@ namespace wpfScope
         private bool _shouldUpdateAnalysis;
         private BackgroundWorker _updateAnalysisWorker;
 
+        // Settings
+        private const bool _enableActivation = false;
+        private const bool _hideDebugControls = true;
+        private const int _updateFrequency = 500;
+
         #endregion
 
         #region Properties
@@ -36,6 +41,13 @@ namespace wpfScope
             _updateAnalysisWorker = new BackgroundWorker();
             _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
             _updateAnalysisWorker.RunWorkerAsync();
+
+            if (_hideDebugControls)
+            {
+                _startUpdatingButton.Visibility = Visibility.Hidden;
+                _stopUpdatingButton.Visibility = Visibility.Hidden;
+                _windowFrameTextBlock.Visibility = Visibility.Hidden;
+            }
         }
 
         #endregion
@@ -46,14 +58,14 @@ namespace wpfScope
         {
             base.OnActivated(e);
 
-            EnableAnalysisUpdate();
+            if (_enableActivation) { EnableAnalysisUpdate(); }
         }
 
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
 
-            DisableAnalysisUpdate();
+            if (_enableActivation) { DisableAnalysisUpdate(); }
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -103,7 +115,7 @@ namespace wpfScope
             Analyzer.Location = new Point(Left + 1, Top + TitlebarHeight + 1);
             Analyzer.Size = new Size(ActualWidth - 2, ActualHeight - TitlebarHeight - 2);
 
-            WindowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
+            _windowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
         }
 
         #endregion
@@ -133,7 +145,7 @@ namespace wpfScope
                     }
                 }
 
-                System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(_updateFrequency);
             }
         }
 
