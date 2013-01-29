@@ -31,7 +31,7 @@ namespace wpfScope
             Analyzer = new DimensionsAnalyzer();
             DataContext = this;
 
-            DisableAnalysisUpdate();
+            EnableAnalysisUpdate();
 
             _updateAnalysisWorker = new BackgroundWorker();
             _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
@@ -86,8 +86,8 @@ namespace wpfScope
 
         private void UpdateFrame()
         {
-            Analyzer.Location = new Point(Top, Left);
-            Analyzer.Size = new Size(ActualWidth, ActualHeight);
+            Analyzer.Location = new Point(Left + 1, Top + TitlebarHeight + 1);
+            Analyzer.Size = new Size(ActualWidth - 2, ActualHeight - TitlebarHeight - 2);
 
             WindowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
         }
