@@ -30,6 +30,7 @@ namespace wpfScope
                 Win32API.BitBlt(targetDC, 0, 0, width, height, sourceDC, x, y, Win32API.GDI32SRCCOPY);
                 bitmap = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(compatibleBitmapHandle, IntPtr.Zero,
                     Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                bitmap.Freeze();
             }
             catch (Exception ex)
             {

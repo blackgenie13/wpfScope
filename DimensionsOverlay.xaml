@@ -22,13 +22,17 @@
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
                 <Canvas Grid.Column="0" x:Name="OverlayCanvas">
-                    <Line x:Name="HorizontalAxis" X1="10" Y1="30" X2="100" Y2="30" Stroke="Red" />
-                    <Line x:Name="VerticalAxis" X1="55" Y1="10" X2="55" Y2="50" Stroke="Red" />
+                    <!--Line x:Name="HorizontalAxis" X1="10" Y1="30" X2="100" Y2="30" Stroke="Red" />
+                    <Line x:Name="VerticalAxis" X1="55" Y1="10" X2="55" Y2="50" Stroke="Red" /-->
                 </Canvas>
+                <TextBlock Grid.Column="0" x:Name="WindowFrameTextBlock" Text="(0, 0) 0 x 0"
+                           Background="Gray" Foreground="White"
+                           HorizontalAlignment="Center" Margin="10" Padding="3" VerticalAlignment="Bottom" />
                 <Button Grid.Column="0" x:Name="_startUpdatingButton" x:FieldModifier="private" Content="Start"
                         HorizontalAlignment="Left" Margin="10" VerticalAlignment="Bottom" />
                 <Button Grid.Column="0" x:Name="_stopUpdatingButton" x:FieldModifier="private" Content="Stop"
                         HorizontalAlignment="Right" Margin="10" VerticalAlignment="Bottom" />
+                <Rectangle Grid.Column="1" Fill="White" />
                 <Image Grid.Column="1" x:Name="Screenshot" Source="{Binding Analyzer.Screenshot}" />
             </Grid>
         </Border>

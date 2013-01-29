@@ -18,7 +18,7 @@ namespace wpfScope
 
         #region Properties
 
-        private DimensionsAnalyzer Analyzer { get; set; }
+        public DimensionsAnalyzer Analyzer { get; set; }
 
         #endregion
 
@@ -29,36 +29,18 @@ namespace wpfScope
             InitializeComponent();
 
             Analyzer = new DimensionsAnalyzer();
+            DataContext = this;
 
             DisableAnalysisUpdate();
 
             _updateAnalysisWorker = new BackgroundWorker();
             _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
-            _updateAnalysisWorker.RunWorkerAsync(this);
-        }
-
-        #endregion
-
-        #region Public API
-
-        public Point Position()
-        {
-            return new Point(this.Left, this.Top);
-        }
-
-        public Size Size()
-        {
-            return new Size(this.ActualWidth, this.ActualHeight);
+            _updateAnalysisWorker.RunWorkerAsync();
         }
 
         #endregion
 
         #region Window Overrides
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-        }
 
         protected override void OnInitialized(EventArgs e)
         {
@@ -66,6 +48,20 @@ namespace wpfScope
 
             _startUpdatingButton.Click += (sStart, eStart) => { EnableAnalysisUpdate(); };
             _stopUpdatingButton.Click += (sStop, eStop) => { DisableAnalysisUpdate(); };
+        }
+
+        protected override void OnLocationChanged(EventArgs e)
+        {
+            base.OnLocationChanged(e);
+
+            UpdateFrame();
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+
+            UpdateFrame();
         }
 
         #endregion
@@ -88,6 +84,14 @@ namespace wpfScope
             }
         }
 
+        private void UpdateFrame()
+        {
+            Analyzer.Location = new Point(Top, Left);
+            Analyzer.Size = new Size(ActualWidth, ActualHeight);
+
+            WindowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
+        }
+
         #endregion
 
         #region Update Background Worker Handlers
@@ -105,19 +109,14 @@ namespace wpfScope
 
                 if (shouldUpdateAnalysis)
                 {
-                    var window = e.Argument as DimensionsOverlay;
-
-                    if (Analyzer != null && window != null)
+                    if (Analyzer != null)
                     {
                         // Actually update the analysis.
                         System.Diagnostics.Debug.WriteLine("Updating analysis...");
 
-                        Point windowPosition = window.Position();
-                        Size windowSize = window.Size();
-
                         Analyzer.Screenshot = ScreenshotUtility.CaptureRegion(
-                            (int)windowPosition.X, (int)windowPosition.Y,
-                            (int)windowSize.Width, (int)windowSize.Height);
+                            (int)Analyzer.Location.X, (int)Analyzer.Location.Y,
+                            (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height);
                     }
                 }
 
