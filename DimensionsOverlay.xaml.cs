@@ -11,9 +11,13 @@ namespace wpfScope
     {
         #region Private Fields
 
+        // Background Worker
         private object _lock = new object(); // NO HEISENBUGS.
         private bool _shouldUpdateAnalysis;
         private BackgroundWorker _updateAnalysisWorker;
+
+        // Mouse
+        private bool _mouseOver;
 
         // Settings
         private const bool _enableActivation = false;
@@ -33,15 +37,15 @@ namespace wpfScope
         public DimensionsOverlay()
         {
             InitializeComponent();
-
-            Analyzer = new DimensionsAnalyzer();
             DataContext = this;
 
+            Analyzer = new DimensionsAnalyzer();
             EnableAnalysisUpdate();
-
             _updateAnalysisWorker = new BackgroundWorker();
             _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
             _updateAnalysisWorker.RunWorkerAsync();
+
+            _mouseOver = false;
 
             if (_hideDebugControls)
             {
@@ -76,6 +80,8 @@ namespace wpfScope
             _startUpdatingButton.Click += (sStart, eStart) => { EnableAnalysisUpdate(); };
             _stopUpdatingButton.Click += (sStop, eStop) => { DisableAnalysisUpdate(); };
 
+            _overlayCanvas.MouseEnter += _overlayCanvas_MouseEnter;
+            _overlayCanvas.MouseLeave += _overlayCanvas_MouseLeave;
             _overlayCanvas.MouseMove += _overlayCanvas_MouseMove;
         }
 
@@ -97,14 +103,21 @@ namespace wpfScope
 
         #region Canvas Mouse Event Handlers
 
+        void _overlayCanvas_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _mouseOver = false;
+            DisableGuides();
+        }
+
+        void _overlayCanvas_MouseEnter(object sender, MouseEventArgs e)
+        {
+            _mouseOver = true;
+            EnableGuides();
+        }
+
         private void _overlayCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            MouseDevice device = e.MouseDevice;
-            Point position = device.GetPosition(_overlayCanvas);
-            System.Diagnostics.Debug.WriteLine(String.Format("Moving mouse with {0}", position));
-
-            ImageCursorEcho.SetValue(Canvas.LeftProperty, position.X);
-            ImageCursorEcho.SetValue(Canvas.TopProperty, position.Y);
+            Analyzer.CursorPosition = e.MouseDevice.GetPosition(_overlayCanvas); ;
         }
 
         #endregion
@@ -124,6 +137,29 @@ namespace wpfScope
             lock (_lock)
             {
                 _shouldUpdateAnalysis = true;
+            }
+        }
+
+        private void DisableGuides()
+        {
+            _horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Hidden;
+            _horizontalAxis.Visibility = System.Windows.Visibility.Hidden;
+            _horizontalAxisRightCap.Visibility = System.Windows.Visibility.Hidden;
+            _verticalAxisTopCap.Visibility = System.Windows.Visibility.Hidden;
+            _verticalAxis.Visibility = System.Windows.Visibility.Hidden;
+            _verticalAxisBottomCap.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private void EnableGuides()
+        {
+            if (_mouseOver)
+            {
+                _horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Visible;
+                _horizontalAxis.Visibility = System.Windows.Visibility.Visible;
+                _horizontalAxisRightCap.Visibility = System.Windows.Visibility.Visible;
+                _verticalAxisTopCap.Visibility = System.Windows.Visibility.Visible;
+                _verticalAxis.Visibility = System.Windows.Visibility.Visible;
+                _verticalAxisBottomCap.Visibility = System.Windows.Visibility.Visible;
             }
         }
 
@@ -154,10 +190,16 @@ namespace wpfScope
                 {
                     if (Analyzer != null)
                     {
-                        // Actually update the analysis.
-                        //System.Diagnostics.Debug.WriteLine(String.Format("Updating analysis at ({0}) for ({1}).", Analyzer.Location, Analyzer.Size));
+                        // TODO.byip: Figure out a better way to do this, because the guides flicker.
+                        //
+                        // Hides the guides.
+                        this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
+
+                        // Take the screenshot.
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
                                                                                      (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
+                        // Show the guides.
+                        this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
                     }
                 }
 

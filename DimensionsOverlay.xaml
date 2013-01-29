@@ -42,8 +42,25 @@
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
                 <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000">
-                    <!--Line x:Name="HorizontalAxis" X1="10" Y1="30" X2="100" Y2="30" Stroke="Red" />
-                    <Line x:Name="VerticalAxis" X1="55" Y1="10" X2="55" Y2="50" Stroke="Red" /-->
+                    <Line x:Name="_horizontalAxisLeftCap" x:FieldModifier="private" Stroke="Red"
+                          X1="100" Y1="145"
+                          X2="100" Y2="155" />
+                    <Line x:Name="_horizontalAxis" x:FieldModifier="private" Stroke="Red"
+                          X1="100" Y1="150"
+                          X2="400" Y2="150" />
+                    <Line x:Name="_horizontalAxisRightCap" x:FieldModifier="private" Stroke="Red"
+                          X1="400" Y1="145"
+                          X2="400" Y2="155" />
+
+                    <Line x:Name="_verticalAxisTopCap" x:FieldModifier="private" Stroke="Red"
+                          X1="245" Y1="100"
+                          X2="255" Y2="100" />
+                    <Line x:Name="_verticalAxis" x:FieldModifier="private" Stroke="Red"
+                          X1="250" Y1="100"
+                          X2="250" Y2="200" />
+                    <Line x:Name="_verticalAxisBottomCap" x:FieldModifier="private" Stroke="Red"
+                          X1="245" Y1="200"
+                          X2="255" Y2="200" />
                 </Canvas>
                 <TextBlock x:Name="_windowFrameTextBlock" x:FieldModifier="private" Grid.Column="0"
                            Background="Gray" Foreground="White"
@@ -61,7 +78,9 @@
                 <Rectangle Fill="White" Grid.Column="1" />
                 <Image x:Name="ScreenshotImage" Source="{Binding Analyzer.ScreenshotImage}" Stretch="UniformToFill" Grid.Column="1" />
                 <Canvas x:Name="_screenshotImageCanvas" x:FieldModifier="private" Grid.Column="1">
-                    <Rectangle x:Name="ImageCursorEcho" Fill="Red" Height="2" Width="2" />
+                    <Rectangle x:Name="ImageCursorEcho" Fill="Red"
+                               Height="2" Width="2"
+                               Canvas.Left="{Binding Analyzer.CursorPosition.X}" Canvas.Top="{Binding Analyzer.CursorPosition.Y}" />
                 </Canvas>
             </Grid>
         </Border>
