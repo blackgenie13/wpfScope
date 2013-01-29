@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 
@@ -74,6 +75,8 @@ namespace wpfScope
 
             _startUpdatingButton.Click += (sStart, eStart) => { EnableAnalysisUpdate(); };
             _stopUpdatingButton.Click += (sStop, eStop) => { DisableAnalysisUpdate(); };
+
+            _overlayCanvas.MouseMove += _overlayCanvas_MouseMove;
         }
 
         protected override void OnLocationChanged(EventArgs e)
@@ -88,6 +91,20 @@ namespace wpfScope
             base.OnRenderSizeChanged(sizeInfo);
 
             UpdateFrame();
+        }
+
+        #endregion
+
+        #region Canvas Mouse Event Handlers
+
+        private void _overlayCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseDevice device = e.MouseDevice;
+            Point position = device.GetPosition(_overlayCanvas);
+            System.Diagnostics.Debug.WriteLine(String.Format("Moving mouse with {0}", position));
+
+            ImageCursorEcho.SetValue(Canvas.LeftProperty, position.X);
+            ImageCursorEcho.SetValue(Canvas.TopProperty, position.Y);
         }
 
         #endregion
@@ -112,8 +129,8 @@ namespace wpfScope
 
         private void UpdateFrame()
         {
-            Analyzer.Location = new Point(Left + 1, Top + TitlebarHeight + 1);
-            Analyzer.Size = new Size(ActualWidth - 2, ActualHeight - TitlebarHeight - 2);
+            Analyzer.Location = new Point(Left, Top + TitlebarHeight);
+            Analyzer.Size = new Size(ActualWidth, ActualHeight - TitlebarHeight);
 
             _windowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
         }
@@ -138,8 +155,7 @@ namespace wpfScope
                     if (Analyzer != null)
                     {
                         // Actually update the analysis.
-                        System.Diagnostics.Debug.WriteLine(String.Format("Updating analysis at ({0}) for ({1}).", Analyzer.Location, Analyzer.Size));
-
+                        //System.Diagnostics.Debug.WriteLine(String.Format("Updating analysis at ({0}) for ({1}).", Analyzer.Location, Analyzer.Size));
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
                                                                                      (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
                     }

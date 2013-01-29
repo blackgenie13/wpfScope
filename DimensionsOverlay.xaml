@@ -1,8 +1,11 @@
 ﻿<Controls:MetroWindow x:Class="wpfScope.DimensionsOverlay"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        Title="Dimensions" Height="480" Width="940" Background="#00000000" AllowsTransparency="True">
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      AllowsTransparency="True" Background="Transparent" Topmost="True"
+                      Height="480" Width="940"
+                      Title="DIMENSIONS" ShowTitleBar="False">
+    
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -14,31 +17,52 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+
     <Grid>
-        <Border BorderBrush="Gray" BorderThickness="1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border x:Name="_customTitleBorder" x:FieldModifier="private" Grid.Row="0"
+                Background="White" Height="{Binding TitlebarHeight, Mode=OneWay}">
+            <StackPanel Orientation="Horizontal">
+                <Rectangle Fill="{StaticResource AccentColorBrush}" Width="10" />
+                <TextBlock x:Name="_customTitleBarTextBlock" x:FieldModifier="private"
+                           FontFamily="Segoe UI" FontSize="14" FontWeight="ExtraBold"
+                           Margin="5,0,0,0" VerticalAlignment="Center"
+                           Text="{Binding Title, Mode=OneWay}" />
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="_controlsBorder" x:FieldModifier="private" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.5*" />
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
-                <Canvas Grid.Column="0" x:Name="OverlayCanvas">
+                <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000">
                     <!--Line x:Name="HorizontalAxis" X1="10" Y1="30" X2="100" Y2="30" Stroke="Red" />
                     <Line x:Name="VerticalAxis" X1="55" Y1="10" X2="55" Y2="50" Stroke="Red" /-->
                 </Canvas>
-                <TextBlock Grid.Column="0" x:Name="_windowFrameTextBlock" x:FieldModifier="private"
+                <TextBlock x:Name="_windowFrameTextBlock" x:FieldModifier="private" Grid.Column="0"
                            Background="Gray" Foreground="White"
                            Margin="10" Padding="3" 
                            HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-                <Button Grid.Column="0" x:Name="_startUpdatingButton" x:FieldModifier="private"
+                <Button x:Name="_startUpdatingButton" x:FieldModifier="private" Grid.Column="0"
                         Content="Start"
                         Margin="10"
                         HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                <Button Grid.Column="0" x:Name="_stopUpdatingButton" x:FieldModifier="private"
+                <Button x:Name="_stopUpdatingButton" x:FieldModifier="private" Grid.Column="0"
                         Content="Stop"
                         Margin="10" 
                         HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                <Rectangle Grid.Column="1" Fill="White" />
-                <Image Grid.Column="1" x:Name="Screenshot" Source="{Binding Analyzer.ScreenshotImage}" />
+
+                <Rectangle Fill="White" Grid.Column="1" />
+                <Image x:Name="ScreenshotImage" Source="{Binding Analyzer.ScreenshotImage}" Stretch="UniformToFill" Grid.Column="1" />
+                <Canvas x:Name="_screenshotImageCanvas" x:FieldModifier="private" Grid.Column="1">
+                    <Rectangle x:Name="ImageCursorEcho" Fill="Red" Height="2" Width="2" />
+                </Canvas>
             </Grid>
         </Border>
     </Grid>
