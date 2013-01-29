@@ -42,6 +42,20 @@ namespace wpfScope
 
         #region Window Overrides
 
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+
+            EnableAnalysisUpdate();
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
+            base.OnDeactivated(e);
+
+            DisableAnalysisUpdate();
+        }
+
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
@@ -98,7 +112,7 @@ namespace wpfScope
 
         private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            // Do this every 500ms.
+            // Do this every 0.5s.
             while (true)
             {
                 bool shouldUpdateAnalysis;
@@ -112,15 +126,14 @@ namespace wpfScope
                     if (Analyzer != null)
                     {
                         // Actually update the analysis.
-                        System.Diagnostics.Debug.WriteLine("Updating analysis...");
+                        System.Diagnostics.Debug.WriteLine(String.Format("Updating analysis at ({0}) for ({1}).", Analyzer.Location, Analyzer.Size));
 
-                        Analyzer.Screenshot = ScreenshotUtility.CaptureRegion(
-                            (int)Analyzer.Location.X, (int)Analyzer.Location.Y,
-                            (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height);
+                        Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
+                                                                                     (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
                     }
                 }
 
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(1000);
             }
         }
 
