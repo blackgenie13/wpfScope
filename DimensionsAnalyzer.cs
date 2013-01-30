@@ -115,26 +115,41 @@ namespace wpfScope
 
         #region Helper Methods
 
-        private Tuple<double, double> GetHorizontalBounds()
-        {
-            Tuple<double, double> range = null;
-
-            return range;
-        }
-
         private void UpdateGuidelines()
         {
-            if (ScreenshotBitmap != null)
+            lock (_bitmapLock)
             {
-                lock (_bitmapLock)
+                if (ScreenshotBitmap != null)
                 {
-                    GuidelineCoordinates.UpdateHorizontalGuideline(0, _cursorPosition.Y,
-                                                                   ScreenshotBitmap.Width, _cursorPosition.Y);
-                    GuidelineCoordinates.UpdateVerticalGuideline(_cursorPosition.X, 0,
-                                                                 _cursorPosition.X, ScreenshotBitmap.Height);
-                }
+                    int bh = ScreenshotBitmap.Height;
+                    int bw = ScreenshotBitmap.Width;
+                    int cx = (int)CursorPosition.X;
+                    int cy = (int)CursorPosition.Y;
+                    Color color = ScreenshotBitmap.GetPixel(cx, cy);
 
-                NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
+                    // Get the horizontal guideline bounds.
+                    int left = 0;
+                    int right = bw;
+                    for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i; break; } }
+                    for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i; break; } }
+
+                    // Get the vertical guideline bounds.
+                    int top = 0;
+                    int bottom = bh;
+                    for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
+                    for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
+
+                    System.Diagnostics.Debug.WriteLine(String.Format("(cx, cy)      = ({0}, {1})", cx, cy));
+                    System.Diagnostics.Debug.WriteLine(String.Format("(left, right) = ({0}, {1})", left, right));
+                    System.Diagnostics.Debug.WriteLine(String.Format("(top, bottom) = ({0}, {1})", top, bottom));
+
+                    // Set all the guideline points.
+                    GuidelineCoordinates.UpdateHorizontalGuideline(left, cy,
+                                                                   right, cy);
+                    GuidelineCoordinates.UpdateVerticalGuideline(cx, top,
+                                                                 cx, bottom);
+                    NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
+                }
             }
         }
 
