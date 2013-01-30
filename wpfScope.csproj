@@ -65,6 +65,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters.cs" />
     <Compile Include="GuidelineCoordinates.cs" />
     <Compile Include="LineCoordinates.cs" />
     <Compile Include="ScreenshotUtility.cs" />

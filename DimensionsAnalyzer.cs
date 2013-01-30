@@ -90,16 +90,6 @@ namespace wpfScope
 
         #region API
 
-        public void UpdateGuidelines()
-        {
-            if (ScreenshotImage != null)
-            {
-                GuidelineCoordinates.UpdateHorizontalGuideline(0, _cursorPosition.Y, ScreenshotImage.Width, _cursorPosition.Y);
-                GuidelineCoordinates.UpdateVerticalGuideline(_cursorPosition.X, 0, _cursorPosition.X, ScreenshotImage.Height);
-                NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
-            }
-        }
-
         public void UpdateScreenshot(Bitmap bmp)
         {
             if (bmp != null)
@@ -108,6 +98,22 @@ namespace wpfScope
 
                 ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 ScreenshotImage.Freeze();
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private void UpdateGuidelines()
+        {
+            if (ScreenshotImage != null)
+            {
+                GuidelineCoordinates.UpdateHorizontalGuideline(0, _cursorPosition.Y,
+                                                               ScreenshotImage.Width, _cursorPosition.Y);
+                GuidelineCoordinates.UpdateVerticalGuideline(_cursorPosition.X, 0,
+                                                             _cursorPosition.X, ScreenshotImage.Height);
+                NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
             }
         }
 

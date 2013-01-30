@@ -7,46 +7,31 @@ namespace wpfScope
     {
         #region Private Fields
 
-        private const int _capLength = 2;
+        private const int _capLength = 4;
 
         #endregion
 
         #region Properties
 
+        public static readonly string LeftCapPropertyName = "LeftCap";
+        public LineCoordinates LeftCap { get; private set; }
+
         public static readonly string HorizontalGuidelinePropertyName = "HorizontalGuideline";
-        private LineCoordinates _horizontalGuideline;
-        public LineCoordinates HorizontalGuideline
-        {
-            get { return _horizontalGuideline; }
-            set
-            {
-                if (_horizontalGuideline != value)
-                {
-                    _horizontalGuideline = value;
-                    NotifyPropertyChanged(HorizontalGuidelinePropertyName);
-                }
-            }
-        }
+        public LineCoordinates HorizontalGuideline { get; private set; }
+
+        public static readonly string RightCapPropertyName = "RightCap";
+        public LineCoordinates RightCap { get; private set; }
+
+
+
+        public static readonly string TopCapPropertyName = "TopCap";
+        public LineCoordinates TopCap { get; private set; }
 
         public static readonly string VerticalGuidelinePropertyName = "VerticalGuideline";
-        private LineCoordinates _verticalGuideline;
-        public LineCoordinates VerticalGuideline
-        {
-            get { return _verticalGuideline; }
-            set
-            {
-                if (_verticalGuideline != value)
-                {
-                    _verticalGuideline = value;
-                    NotifyPropertyChanged(VerticalGuidelinePropertyName);
-                }
-            }
-        }
+        public LineCoordinates VerticalGuideline { get; private set; }
 
-        public LineCoordinates LeftCap { get { return new LineCoordinates(new Point(), new Point()); } }
-        public LineCoordinates RightCap { get { return new LineCoordinates(new Point(), new Point()); } }
-        public LineCoordinates TopCap { get { return new LineCoordinates(new Point(), new Point()); } }
-        public LineCoordinates BottomCap { get { return new LineCoordinates(new Point(), new Point()); } }
+        public static readonly string BottomCapPropertyName = "BottomCap";
+        public LineCoordinates BottomCap { get; private set; }
 
         #endregion
 
@@ -54,8 +39,13 @@ namespace wpfScope
 
         public GuidelineCoordinates()
         {
+            LeftCap = new LineCoordinates();
             HorizontalGuideline = new LineCoordinates();
+            RightCap = new LineCoordinates();
+
+            TopCap = new LineCoordinates();
             VerticalGuideline = new LineCoordinates();
+            BottomCap = new LineCoordinates();
         }
 
         #endregion
@@ -64,14 +54,30 @@ namespace wpfScope
 
         public void UpdateHorizontalGuideline(double x1, double y1, double x2, double y2)
         {
-            HorizontalGuideline.Update(x1, y1, x2, y2);
+            LeftCap.Update(x1, y1 - _capLength,
+                           x1, y1 + _capLength);
+            HorizontalGuideline.Update(x1, y1,
+                                       x2, y2);
+            RightCap.Update(x2, y1 - _capLength,
+                           x2, y1 + _capLength);
+
+            NotifyPropertyChanged(LeftCapPropertyName);
             NotifyPropertyChanged(HorizontalGuidelinePropertyName);
+            NotifyPropertyChanged(RightCapPropertyName);
         }
 
         public void UpdateVerticalGuideline(double x1, double y1, double x2, double y2)
         {
-            VerticalGuideline.Update(x1, y1, x2, y2);
+            TopCap.Update(x1 - _capLength, y1,
+                          x1 + _capLength, y1);
+            VerticalGuideline.Update(x1, y1,
+                                     x2, y2);
+            BottomCap.Update(x1 - _capLength, y2,
+                             x1 + _capLength, y2);
+
+            NotifyPropertyChanged(TopCapPropertyName);
             NotifyPropertyChanged(VerticalGuidelinePropertyName);
+            NotifyPropertyChanged(BottomCapPropertyName);
         }
 
         #endregion
