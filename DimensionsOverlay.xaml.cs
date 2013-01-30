@@ -21,8 +21,7 @@ namespace wpfScope
         private bool _mouseOver;
 
         // Settings
-        private const bool _enableActivation = false;
-        private const bool _hideDebugControls = true;
+        private const bool _hideDebugControls = false;
         private const int _updateFrequency = 500;
 
         #endregion
@@ -50,8 +49,6 @@ namespace wpfScope
 
             if (_hideDebugControls)
             {
-                _startUpdatingButton.Visibility = Visibility.Hidden;
-                _stopUpdatingButton.Visibility = Visibility.Hidden;
                 _windowFrameTextBlock.Visibility = Visibility.Hidden;
             }
         }
@@ -60,30 +57,15 @@ namespace wpfScope
 
         #region Window Overrides
 
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-
-            if (_enableActivation) { EnableAnalysisUpdate(); }
-        }
-
-        protected override void OnDeactivated(EventArgs e)
-        {
-            base.OnDeactivated(e);
-
-            if (_enableActivation) { DisableAnalysisUpdate(); }
-        }
-
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
 
-            _startUpdatingButton.Click += (sStart, eStart) => { EnableAnalysisUpdate(); };
-            _stopUpdatingButton.Click += (sStop, eStop) => { DisableAnalysisUpdate(); };
-
             _overlayCanvas.MouseEnter += _overlayCanvas_MouseEnter;
             _overlayCanvas.MouseLeave += _overlayCanvas_MouseLeave;
             _overlayCanvas.MouseMove += _overlayCanvas_MouseMove;
+
+            DisableGuides();
         }
 
         protected override void OnLocationChanged(EventArgs e)
@@ -98,6 +80,26 @@ namespace wpfScope
             base.OnRenderSizeChanged(sizeInfo);
 
             UpdateFrame();
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            base.OnStateChanged(e);
+
+            switch (WindowState)
+            {
+                case WindowState.Maximized:
+                    UpdateFrame();
+                    EnableAnalysisUpdate();
+                    break;
+                case WindowState.Minimized:
+                    DisableAnalysisUpdate();
+                    break;
+                case WindowState.Normal:
+                    UpdateFrame();
+                    EnableAnalysisUpdate();
+                    break;
+            }
         }
 
         #endregion
@@ -143,6 +145,7 @@ namespace wpfScope
 
         private void DisableGuides()
         {
+            _dimensionsTextBlockBorder.Visibility = System.Windows.Visibility.Hidden;
             _horizontalGuidelineLeftCap.Visibility = System.Windows.Visibility.Hidden;
             _horizontalGuideline.Visibility = System.Windows.Visibility.Hidden;
             _horizontalGuidelineRightCap.Visibility = System.Windows.Visibility.Hidden;
@@ -155,6 +158,7 @@ namespace wpfScope
         {
             if (_mouseOver)
             {
+                _dimensionsTextBlockBorder.Visibility = System.Windows.Visibility.Visible;
                 _horizontalGuidelineLeftCap.Visibility = System.Windows.Visibility.Visible;
                 _horizontalGuideline.Visibility = System.Windows.Visibility.Visible;
                 _horizontalGuidelineRightCap.Visibility = System.Windows.Visibility.Visible;
@@ -194,13 +198,13 @@ namespace wpfScope
                         // TODO.byip: Figure out a better way to do this, because the guides flicker.
                         //
                         // Hides the guides.
-                        this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
+                        //this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
 
                         // Take the screenshot.
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
                                                                                      (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
                         // Show the guides.
-                        this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
+                        //this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
                     }
                 }
 

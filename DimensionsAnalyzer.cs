@@ -139,10 +139,6 @@ namespace wpfScope
                     for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
                     for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
 
-                    System.Diagnostics.Debug.WriteLine(String.Format("(cx, cy)      = ({0}, {1})", cx, cy));
-                    System.Diagnostics.Debug.WriteLine(String.Format("(left, right) = ({0}, {1})", left, right));
-                    System.Diagnostics.Debug.WriteLine(String.Format("(top, bottom) = ({0}, {1})", top, bottom));
-
                     // Set all the guideline points.
                     GuidelineCoordinates.UpdateHorizontalGuideline(left, cy,
                                                                    right, cy);
