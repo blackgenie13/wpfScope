@@ -22,6 +22,14 @@ namespace wpfScope
                 {
                     _cursorPosition = value;
                     NotifyPropertyChanged(CursorPositionPropertyName);
+
+                    if (ScreenshotBitmap != null)
+                    {
+                        HorizontalLineCoordinates = new LineCoordinates(new System.Windows.Point(0, _cursorPosition.Y),
+                                                                        new System.Windows.Point(ScreenshotImage.Width, _cursorPosition.Y));
+                        VerticalLineCoordinates = new LineCoordinates(new System.Windows.Point(_cursorPosition.X, 0),
+                                                                      new System.Windows.Point(_cursorPosition.X, ScreenshotImage.Height));
+                    }
                 }
             }
         }
@@ -121,9 +129,10 @@ namespace wpfScope
         #endregion
     }
 
-    public struct LineCoordinates
+    public class LineCoordinates
     {
-        public System.Windows.Point Start, End;
+        public System.Windows.Point Start { get; set; }
+        public System.Windows.Point End { get; set; }
 
         public LineCoordinates(System.Windows.Point start, System.Windows.Point end)
         {
@@ -138,6 +147,7 @@ namespace wpfScope
 
         public static bool operator ==(LineCoordinates lc1, LineCoordinates lc2)
         {
+            if (object.ReferenceEquals(lc1, null) || object.ReferenceEquals(lc2, null)) { return false; }
             return lc1.Start == lc2.Start && lc1.End == lc2.End;
         }
 

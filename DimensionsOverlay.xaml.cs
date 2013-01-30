@@ -154,12 +154,12 @@ namespace wpfScope
         {
             if (_mouseOver)
             {
-                _horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Visible;
+                //_horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Visible;
                 _horizontalAxis.Visibility = System.Windows.Visibility.Visible;
-                _horizontalAxisRightCap.Visibility = System.Windows.Visibility.Visible;
-                _verticalAxisTopCap.Visibility = System.Windows.Visibility.Visible;
+                //_horizontalAxisRightCap.Visibility = System.Windows.Visibility.Visible;
+                //_verticalAxisTopCap.Visibility = System.Windows.Visibility.Visible;
                 _verticalAxis.Visibility = System.Windows.Visibility.Visible;
-                _verticalAxisBottomCap.Visibility = System.Windows.Visibility.Visible;
+                //_verticalAxisBottomCap.Visibility = System.Windows.Visibility.Visible;
             }
         }
 

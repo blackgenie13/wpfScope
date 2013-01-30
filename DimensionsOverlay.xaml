@@ -46,8 +46,8 @@
                           X1="100" Y1="145"
                           X2="100" Y2="155" />
                     <Line x:Name="_horizontalAxis" x:FieldModifier="private" Stroke="Red"
-                          X1="100" Y1="150"
-                          X2="400" Y2="150" />
+                          X1="{Binding Analyzer.HorizontalLineCoordinates.Start.X, Mode=OneWay}" Y1="{Binding Analyzer.HorizontalLineCoordinates.Start.Y, Mode=OneWay}"
+                          X2="{Binding Analyzer.HorizontalLineCoordinates.End.X, Mode=OneWay}" Y2="{Binding Analyzer.HorizontalLineCoordinates.End.Y, Mode=OneWay}" />
                     <Line x:Name="_horizontalAxisRightCap" x:FieldModifier="private" Stroke="Red"
                           X1="400" Y1="145"
                           X2="400" Y2="155" />
@@ -56,8 +56,8 @@
                           X1="245" Y1="100"
                           X2="255" Y2="100" />
                     <Line x:Name="_verticalAxis" x:FieldModifier="private" Stroke="Red"
-                          X1="250" Y1="100"
-                          X2="250" Y2="200" />
+                          X1="{Binding Analyzer.VerticalLineCoordinates.Start.X, Mode=OneWay}" Y1="{Binding Analyzer.VerticalLineCoordinates.Start.Y, Mode=OneWay}"
+                          X2="{Binding Analyzer.VerticalLineCoordinates.End.X, Mode=OneWay}" Y2="{Binding Analyzer.VerticalLineCoordinates.End.Y, Mode=OneWay}" />
                     <Line x:Name="_verticalAxisBottomCap" x:FieldModifier="private" Stroke="Red"
                           X1="245" Y1="200"
                           X2="255" Y2="200" />
