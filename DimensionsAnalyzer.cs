@@ -9,6 +9,13 @@ namespace wpfScope
 {
     public class DimensionsAnalyzer : INotifyPropertyChanged
     {
+        #region Private Fields
+
+        // Sync bitmap updates.
+        private object _bitmapLock = new object();
+
+        #endregion
+
         #region Properties
 
         public static readonly string CursorPositionPropertyName = "CursorPosition";
@@ -94,9 +101,12 @@ namespace wpfScope
         {
             if (bmp != null)
             {
-                ScreenshotBitmap = bmp;
+                lock (_bitmapLock)
+                {
+                    ScreenshotBitmap = bmp;
+                    ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                }
 
-                ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 ScreenshotImage.Freeze();
             }
         }
@@ -105,14 +115,25 @@ namespace wpfScope
 
         #region Helper Methods
 
+        private Tuple<double, double> GetHorizontalBounds()
+        {
+            Tuple<double, double> range = null;
+
+            return range;
+        }
+
         private void UpdateGuidelines()
         {
-            if (ScreenshotImage != null)
+            if (ScreenshotBitmap != null)
             {
-                GuidelineCoordinates.UpdateHorizontalGuideline(0, _cursorPosition.Y,
-                                                               ScreenshotImage.Width, _cursorPosition.Y);
-                GuidelineCoordinates.UpdateVerticalGuideline(_cursorPosition.X, 0,
-                                                             _cursorPosition.X, ScreenshotImage.Height);
+                lock (_bitmapLock)
+                {
+                    GuidelineCoordinates.UpdateHorizontalGuideline(0, _cursorPosition.Y,
+                                                                   ScreenshotBitmap.Width, _cursorPosition.Y);
+                    GuidelineCoordinates.UpdateVerticalGuideline(_cursorPosition.X, 0,
+                                                                 _cursorPosition.X, ScreenshotBitmap.Height);
+                }
+
                 NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
             }
         }
