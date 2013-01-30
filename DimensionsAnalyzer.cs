@@ -129,13 +129,13 @@ namespace wpfScope
 
                     // Get the horizontal guideline bounds.
                     int left = 0;
-                    int right = bw;
+                    int right = bw-1;
                     for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i; break; } }
                     for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i; break; } }
 
                     // Get the vertical guideline bounds.
                     int top = 0;
-                    int bottom = bh;
+                    int bottom = bh-2;
                     for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
                     for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
 

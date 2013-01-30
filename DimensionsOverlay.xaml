@@ -42,10 +42,12 @@
                     <ColumnDefinition Width="0.5*" />
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
-                <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000">
+                <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000"
+                        RenderOptions.EdgeMode="Aliased" SnapsToDevicePixels="True">
                     <Canvas.Resources>
                         <c:LineCoordinatesToValueConverter x:Key="CoordinatesConverter" />
                     </Canvas.Resources>
+                    <Line x:Name="_testLine" x:FieldModifier="private" Stroke="Red" X1="10" Y1="100" X2="110" Y2="100" Visibility="Hidden" />
                     <Line x:Name="_horizontalGuidelineLeftCap" x:FieldModifier="private" Stroke="Red"
                           X1="{Binding Analyzer.GuidelineCoordinates.LeftCap, Converter={StaticResource CoordinatesConverter}, ConverterParameter=StartX, Mode=OneWay}"
                           Y1="{Binding Analyzer.GuidelineCoordinates.LeftCap, Converter={StaticResource CoordinatesConverter}, ConverterParameter=StartY, Mode=OneWay}"
@@ -94,7 +96,7 @@
                 <Rectangle Fill="White" Grid.Column="1" />
                 <Image x:Name="ScreenshotImage" Source="{Binding Analyzer.ScreenshotImage}" Stretch="UniformToFill" Grid.Column="1" />
                 <Canvas x:Name="_screenshotImageCanvas" x:FieldModifier="private" Grid.Column="1">
-                    <Rectangle x:Name="ImageCursorEcho" Fill="Red"
+                    <Rectangle x:Name="ImageCursorEcho" Fill="Red" RenderOptions.EdgeMode="Aliased" SnapsToDevicePixels="True"
                                Height="2" Width="2"
                                Canvas.Left="{Binding Analyzer.CursorPosition.X}" Canvas.Top="{Binding Analyzer.CursorPosition.Y}" />
                 </Canvas>
