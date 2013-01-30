@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 
@@ -142,24 +143,24 @@ namespace wpfScope
 
         private void DisableGuides()
         {
-            _horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Hidden;
-            _horizontalAxis.Visibility = System.Windows.Visibility.Hidden;
-            _horizontalAxisRightCap.Visibility = System.Windows.Visibility.Hidden;
-            _verticalAxisTopCap.Visibility = System.Windows.Visibility.Hidden;
-            _verticalAxis.Visibility = System.Windows.Visibility.Hidden;
-            _verticalAxisBottomCap.Visibility = System.Windows.Visibility.Hidden;
+            _horizontalGuidelineLeftCap.Visibility = System.Windows.Visibility.Hidden;
+            _horizontalGuideline.Visibility = System.Windows.Visibility.Hidden;
+            _horizontalGuidelineRightCap.Visibility = System.Windows.Visibility.Hidden;
+            _verticalGuidelineTopCap.Visibility = System.Windows.Visibility.Hidden;
+            _verticalGuideline.Visibility = System.Windows.Visibility.Hidden;
+            _verticalGuidelineBottomCap.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void EnableGuides()
         {
             if (_mouseOver)
             {
-                //_horizontalAxisLeftCap.Visibility = System.Windows.Visibility.Visible;
-                _horizontalAxis.Visibility = System.Windows.Visibility.Visible;
-                //_horizontalAxisRightCap.Visibility = System.Windows.Visibility.Visible;
-                //_verticalAxisTopCap.Visibility = System.Windows.Visibility.Visible;
-                _verticalAxis.Visibility = System.Windows.Visibility.Visible;
-                //_verticalAxisBottomCap.Visibility = System.Windows.Visibility.Visible;
+                //_horizontalGuidelineLeftCap.Visibility = System.Windows.Visibility.Visible;
+                _horizontalGuideline.Visibility = System.Windows.Visibility.Visible;
+                //_horizontalGuidelineRightCap.Visibility = System.Windows.Visibility.Visible;
+                //_verticalGuidelineTopCap.Visibility = System.Windows.Visibility.Visible;
+                _verticalGuideline.Visibility = System.Windows.Visibility.Visible;
+                //_verticalGuidelineBottomCap.Visibility = System.Windows.Visibility.Visible;
             }
         }
 
@@ -205,6 +206,56 @@ namespace wpfScope
 
                 System.Threading.Thread.Sleep(_updateFrequency);
             }
+        }
+
+        #endregion
+    }
+
+    public class LineCoordinatesToValueConverter : IValueConverter
+    {
+        public enum PointOption
+        {
+            StartX,
+            StartY,
+            EndX,
+            EndY
+        }
+
+        #region IValueConverter Members
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var coordinates = value as LineCoordinates;
+            var parameterString = parameter as string;
+            double i = 0;
+
+            if (coordinates != null && parameter != null)
+            {
+                PointOption option = (PointOption)Enum.Parse(typeof(PointOption), parameterString);
+
+                switch (option)
+                {
+                    case PointOption.StartX:
+                        i = coordinates.Start.X;
+                        break;
+                    case PointOption.EndX:
+                        i = coordinates.End.X;
+                        break;
+                    case PointOption.StartY:
+                        i = coordinates.Start.Y;
+                        break;
+                    case PointOption.EndY:
+                        i = coordinates.End.Y;
+                        break;
+                }
+            }
+
+            return i;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
