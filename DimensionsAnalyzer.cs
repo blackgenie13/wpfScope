@@ -35,6 +35,21 @@ namespace wpfScope
             }
         }
 
+        public static readonly string DimensionsStringPropertyName = "DimensionsString";
+        private string _dimensionsString;
+        public string DimensionsString
+        {
+            get { return _dimensionsString; }
+            set
+            {
+                if (_dimensionsString != value)
+                {
+                    _dimensionsString = value;
+                    NotifyPropertyChanged(DimensionsStringPropertyName);
+                }
+            }
+        }
+
         public static readonly string GuidelineCoordinatesPropertyName = "GuidelineCooordinates";
         private GuidelineCoordinates _guidelineCoordinates;
         public GuidelineCoordinates GuidelineCoordinates
@@ -117,35 +132,45 @@ namespace wpfScope
 
         private void UpdateGuidelines()
         {
+            bool shouldUpdate = false;
+            int cx = (int)CursorPosition.X;
+            int cy = (int)CursorPosition.Y;
+            int left = 0;
+            int right = 0;
+            int top = 0;
+            int bottom = 0;
+
             lock (_bitmapLock)
             {
                 if (ScreenshotBitmap != null)
                 {
                     int bh = ScreenshotBitmap.Height;
                     int bw = ScreenshotBitmap.Width;
-                    int cx = (int)CursorPosition.X;
-                    int cy = (int)CursorPosition.Y;
                     Color color = ScreenshotBitmap.GetPixel(cx, cy);
 
                     // Get the horizontal guideline bounds.
-                    int left = 0;
-                    int right = bw-1;
+                    right = bw;
                     for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i; break; } }
                     for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i; break; } }
 
                     // Get the vertical guideline bounds.
-                    int top = 0;
-                    int bottom = bh-2;
+                    bottom = bh;
                     for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
                     for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
 
-                    // Set all the guideline points.
-                    GuidelineCoordinates.UpdateHorizontalGuideline(left, cy,
-                                                                   right, cy);
-                    GuidelineCoordinates.UpdateVerticalGuideline(cx, top,
-                                                                 cx, bottom);
-                    NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
+                    shouldUpdate = true;
                 }
+            }
+
+            if (shouldUpdate)
+            {
+                // Set all the guideline points.
+                DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left, 0), Math.Max(bottom - top, 0));
+                GuidelineCoordinates.UpdateHorizontalGuideline(left, cy,
+                                                               right, cy);
+                GuidelineCoordinates.UpdateVerticalGuideline(cx, top,
+                                                             cx, bottom);
+                NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
             }
         }
 

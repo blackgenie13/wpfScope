@@ -21,7 +21,7 @@ namespace wpfScope
         private bool _mouseOver;
 
         // Settings
-        private const bool _hideDebugControls = false;
+        private const bool _hideDebugControls = true;
         private const int _updateFrequency = 500;
 
         #endregion
@@ -198,13 +198,13 @@ namespace wpfScope
                         // TODO.byip: Figure out a better way to do this, because the guides flicker.
                         //
                         // Hides the guides.
-                        //this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
+                        this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
 
                         // Take the screenshot.
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
                                                                                      (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
                         // Show the guides.
-                        //this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
+                        this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
                     }
                 }
 

@@ -47,8 +47,9 @@
                     <Canvas.Resources>
                         <c:LineCoordinatesToValueConverter x:Key="CoordinatesConverter" />
                     </Canvas.Resources>
+                    
                     <Border x:Name="_dimensionsTextBlockBorder" x:FieldModifier="private" Background="#EEEEEE" BorderBrush="#767676">
-                        <TextBlock x:Name="_dimensionsTextBlock" x:FieldModifier="private" Grid.Column="0" Margin="3" />
+                        <TextBlock x:Name="_dimensionsTextBlock" x:FieldModifier="private" Grid.Column="0" Margin="3" Text="{Binding Analyzer.DimensionsString, Mode=OneWay}" />
                     </Border>
 
                     <Line x:Name="_testLine" x:FieldModifier="private" Stroke="Red" X1="10" Y1="100" X2="110" Y2="100" Visibility="Hidden" />
