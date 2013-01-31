@@ -21,7 +21,7 @@ namespace wpfScope
         private bool _mouseOver;
 
         // Settings
-        private const bool _hideDebugControls = true;
+        private const bool _hideDebugControls = false;
         private const int _updateFrequency = 500;
 
         #endregion
@@ -106,13 +106,13 @@ namespace wpfScope
 
         #region Canvas Mouse Event Handlers
 
-        void _overlayCanvas_MouseLeave(object sender, MouseEventArgs e)
+        private void _overlayCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
             _mouseOver = false;
             DisableGuides();
         }
 
-        void _overlayCanvas_MouseEnter(object sender, MouseEventArgs e)
+        private void _overlayCanvas_MouseEnter(object sender, MouseEventArgs e)
         {
             _mouseOver = true;
             EnableGuides();
@@ -120,7 +120,40 @@ namespace wpfScope
 
         private void _overlayCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            Analyzer.CursorPosition = e.MouseDevice.GetPosition(_overlayCanvas); ;
+            Analyzer.CursorPosition = e.MouseDevice.GetPosition(_overlayCanvas);
+
+            // Update dimensions text box position.
+            if (Analyzer.ScreenshotImage != null)
+            {
+                // Figure out what quadrant the cursor is in.
+                int mx = (int)(0.5 * Analyzer.ScreenshotImage.Width);
+                int my = (int)(0.5 * Analyzer.ScreenshotImage.Height);
+                int cx = (int)Analyzer.CursorPosition.X;
+                int cy = (int)Analyzer.CursorPosition.Y;
+
+                int w = (int)_dimensionsTextBlockBorder.ActualWidth;
+                int h = (int)_dimensionsTextBlockBorder.ActualHeight;
+                int x = cx;
+                int y = cy;
+
+                int margin = 5;
+
+                if (cx > mx)
+                {
+                    x = cx - w - margin;
+                    if (cy < my) { y = cy + margin; } // I
+                    else { y = cy - h - margin; } // II
+                }
+                else
+                {
+                    x = cx + margin;
+                    if (cy < my) { x += 2 * margin; y = cy + margin; } // IV
+                    else { y = cy - h - margin; } // III
+                }
+
+                Canvas.SetLeft(_dimensionsTextBlockBorder, x);
+                Canvas.SetTop(_dimensionsTextBlockBorder, y);
+            }
         }
 
         #endregion
@@ -203,7 +236,7 @@ namespace wpfScope
 #endif
                         // Take the screenshot.
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
-                                                                                     (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
+                                                                                     (int)Analyzer.Size.Width, (int)Analyzer.Size.Height));
 #if WINDOWS8
                         // Show the guides.
                         this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });

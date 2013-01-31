@@ -39,8 +39,8 @@
         <Border x:Name="_controlsBorder" x:FieldModifier="private" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.5*" />
-                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="*" />
+                    <!--ColumnDefinition Width="0.5*" /-->
                 </Grid.ColumnDefinitions>
                 <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000"
                         RenderOptions.EdgeMode="Aliased" SnapsToDevicePixels="True">
@@ -48,8 +48,12 @@
                         <c:LineCoordinatesToValueConverter x:Key="CoordinatesConverter" />
                     </Canvas.Resources>
                     
-                    <Border x:Name="_dimensionsTextBlockBorder" x:FieldModifier="private" Background="#EEEEEE" BorderBrush="#767676">
-                        <TextBlock x:Name="_dimensionsTextBlock" x:FieldModifier="private" Grid.Column="0" Margin="3" Text="{Binding Analyzer.DimensionsString, Mode=OneWay}" />
+                    <Border x:Name="_dimensionsTextBlockBorder" x:FieldModifier="private"
+                            Background="#AAEEEEEE" BorderBrush="#767676"
+                            Canvas.Top="0" Canvas.Left="0">
+                        <TextBlock x:Name="_dimensionsTextBlock" x:FieldModifier="private" Grid.Column="0"
+                                   FontSize="14" Margin="3"
+                                   Text="{Binding Analyzer.DimensionsString, Mode=OneWay}" />
                     </Border>
 
                     <Line x:Name="_testLine" x:FieldModifier="private" Stroke="Red" X1="10" Y1="100" X2="110" Y2="100" Visibility="Hidden" />
@@ -90,13 +94,13 @@
                            Margin="10" Padding="3" 
                            HorizontalAlignment="Center" VerticalAlignment="Bottom" />
 
-                <Rectangle Fill="White" Grid.Column="1" />
+                <!--Rectangle Fill="White" Grid.Column="1" />
                 <Image x:Name="ScreenshotImage" Source="{Binding Analyzer.ScreenshotImage}" Stretch="UniformToFill" Grid.Column="1" />
                 <Canvas x:Name="_screenshotImageCanvas" x:FieldModifier="private" Grid.Column="1">
                     <Rectangle x:Name="ImageCursorEcho" Fill="Red" RenderOptions.EdgeMode="Aliased" SnapsToDevicePixels="True"
                                Height="2" Width="2"
                                Canvas.Left="{Binding Analyzer.CursorPosition.X}" Canvas.Top="{Binding Analyzer.CursorPosition.Y}" />
-                </Canvas>
+                </Canvas-->
             </Grid>
         </Border>
     </Grid>

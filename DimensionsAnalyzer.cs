@@ -130,9 +130,16 @@ namespace wpfScope
 
         #region Helper Methods
 
+        private void UpdateDimensionString(int left, int right, int top, int bottom)
+        {
+            DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left, 0), Math.Max(bottom - top, 0));
+        }
+
         private void UpdateGuidelines()
         {
             bool shouldUpdate = false;
+            int bw = 0;
+            int bh = 0;
             int cx = (int)CursorPosition.X;
             int cy = (int)CursorPosition.Y;
             int left = 0;
@@ -144,17 +151,17 @@ namespace wpfScope
             {
                 if (ScreenshotBitmap != null)
                 {
-                    int bh = ScreenshotBitmap.Height;
-                    int bw = ScreenshotBitmap.Width;
+                    bh = ScreenshotBitmap.Height;
+                    bw = ScreenshotBitmap.Width;
                     Color color = ScreenshotBitmap.GetPixel(cx, cy);
 
                     // Get the horizontal guideline bounds.
-                    right = bw;
+                    right = bw - 1;
                     for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i; break; } }
                     for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i; break; } }
 
                     // Get the vertical guideline bounds.
-                    bottom = bh;
+                    bottom = bh - 1;
                     for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
                     for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
 
@@ -165,12 +172,13 @@ namespace wpfScope
             if (shouldUpdate)
             {
                 // Set all the guideline points.
-                DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left, 0), Math.Max(bottom - top, 0));
                 GuidelineCoordinates.UpdateHorizontalGuideline(left, cy,
                                                                right, cy);
                 GuidelineCoordinates.UpdateVerticalGuideline(cx, top,
                                                              cx, bottom);
                 NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
+
+                UpdateDimensionString(left, right, top, bottom);
             }
         }
 
