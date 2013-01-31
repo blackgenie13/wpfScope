@@ -195,16 +195,19 @@ namespace wpfScope
                 {
                     if (Analyzer != null)
                     {
+#if WINDOWS7
                         // TODO.byip: Figure out a better way to do this, because the guides flicker.
                         //
                         // Hides the guides.
                         this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
-
+#endif
                         // Take the screenshot.
                         Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
                                                                                      (int)(0.5 * Analyzer.Size.Width), (int)Analyzer.Size.Height));
+#if WINDOWS7
                         // Show the guides.
-                        this.Dispatcher.BeginInvoke((Action)delegate(){ EnableGuides(); });
+                        this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });
+#endif
                     }
                 }
 
