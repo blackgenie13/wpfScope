@@ -118,11 +118,37 @@ namespace wpfScope
             {
                 lock (_bitmapLock)
                 {
-                    ScreenshotBitmap = bmp;
-                    ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(bmp.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    IntPtr hbitmap = IntPtr.Zero;
+
+                    try
+                    {
+                        if (ScreenshotBitmap != null) { ScreenshotBitmap.Dispose(); } // Kill memory leaks.
+
+                        ScreenshotBitmap = bmp;
+                        hbitmap = bmp.GetHbitmap();
+
+                        ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    }
+                    catch (Exception e)
+                    {
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine(e);
+#endif
+                    }
+                    finally
+                    {
+                        if (ScreenshotImage != null)
+                        {
+                            ScreenshotImage.Freeze();
+                        }
+
+                        if (hbitmap != IntPtr.Zero)
+                        {
+                            Win32API.DeleteObject(hbitmap);
+                        }
+                    }
                 }
 
-                ScreenshotImage.Freeze();
             }
         }
 
@@ -132,7 +158,7 @@ namespace wpfScope
 
         private void UpdateDimensionString(int left, int right, int top, int bottom)
         {
-            DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left, 0), Math.Max(bottom - top, 0));
+            DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left + 1, 0), Math.Max(bottom - top + 1, 0));
         }
 
         private void UpdateGuidelines()
@@ -151,21 +177,34 @@ namespace wpfScope
             {
                 if (ScreenshotBitmap != null)
                 {
-                    bh = ScreenshotBitmap.Height;
-                    bw = ScreenshotBitmap.Width;
-                    Color color = ScreenshotBitmap.GetPixel(cx, cy);
+                    try
+                    {
+                        bw = ScreenshotBitmap.Width;
+                        bh = ScreenshotBitmap.Height;
 
-                    // Get the horizontal guideline bounds.
-                    right = bw - 1;
-                    for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i; break; } }
-                    for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i; break; } }
+                        if (cx < bw && cy < bh)
+                        {
+                            Color color = ScreenshotBitmap.GetPixel(cx, cy);
 
-                    // Get the vertical guideline bounds.
-                    bottom = bh - 1;
-                    for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j; break; } }
-                    for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j; break; } }
+                            // Get the horizontal guideline bounds.
+                            right = bw - 1;
+                            for (int i = cx; i > 0; i--) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { left = i + 1; break; } }
+                            for (int i = cx; i < bw; i++) { if (ScreenshotBitmap.GetPixel(i, cy) != color) { right = i - 1; break; } }
 
-                    shouldUpdate = true;
+                            // Get the vertical guideline bounds.
+                            bottom = bh - 1;
+                            for (int j = cy; j > 0; j--) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { top = j + 1; break; } }
+                            for (int j = cy; j < bh; j++) { if (ScreenshotBitmap.GetPixel(cx, j) != color) { bottom = j - 1; break; } }
+
+                            shouldUpdate = true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine(e);
+#endif
+                    }
                 }
             }
 
@@ -197,5 +236,11 @@ namespace wpfScope
         }
 
         #endregion
+    }
+
+    public class Win32API
+    {
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr hObject);
     }
 }

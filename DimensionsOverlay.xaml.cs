@@ -21,7 +21,7 @@ namespace wpfScope
         private bool _mouseOver;
 
         // Settings
-        private const bool _hideDebugControls = false;
+        private const bool _hideDebugControls = true;
         private const int _updateFrequency = 500;
 
         #endregion

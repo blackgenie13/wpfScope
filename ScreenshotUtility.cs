@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace wpfScope
@@ -12,13 +13,22 @@ namespace wpfScope
         {
             Bitmap bmp = null;
 
-            if (width > 0 && height > 0)
+            try
             {
-                bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                using (Graphics gfx = Graphics.FromImage(bmp))
+                if (width > 0 && height > 0)
                 {
-                    gfx.CopyFromScreen(x, y, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+                    bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                    using (Graphics gfx = Graphics.FromImage(bmp))
+                    {
+                        gfx.CopyFromScreen(x, y, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(e);
+#endif
             }
 
             return bmp;
