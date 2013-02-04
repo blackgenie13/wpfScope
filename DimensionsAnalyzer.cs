@@ -122,8 +122,6 @@ namespace wpfScope
 
                     try
                     {
-                        if (ScreenshotBitmap != null) { ScreenshotBitmap.Dispose(); } // Kill memory leaks.
-
                         ScreenshotBitmap = bmp;
                         hbitmap = bmp.GetHbitmap();
 
@@ -146,6 +144,8 @@ namespace wpfScope
                         {
                             Win32API.DeleteObject(hbitmap);
                         }
+
+                        GC.Collect();
                     }
                 }
 
