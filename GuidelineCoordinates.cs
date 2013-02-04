@@ -3,10 +3,16 @@ using System.Windows;
 
 namespace wpfScope
 {
+    /// <summary>
+    /// Holds the coordinates for each line that makes up the guidelines for the view.
+    /// </summary>
     public class GuidelineCoordinates : INotifyPropertyChanged
     {
         #region Private Fields
 
+        /// <summary>
+        /// The length of each side of the cap ends of the guidelines.
+        /// </summary>
         private const int _capLength = 4;
 
         #endregion
@@ -37,6 +43,9 @@ namespace wpfScope
 
         #region Constructor
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public GuidelineCoordinates()
         {
             LeftCap = new LineCoordinates();
@@ -52,6 +61,13 @@ namespace wpfScope
 
         #region API
 
+        /// <summary>
+        /// Updates the horizontal guideline.
+        /// </summary>
+        /// <param name="x1">The left x.</param>
+        /// <param name="y1">The left y.</param>
+        /// <param name="x2">The right x.</param>
+        /// <param name="y2">The right y.</param>
         public void UpdateHorizontalGuideline(double x1, double y1, double x2, double y2)
         {
             LeftCap.Update(x1, y1 - _capLength,
@@ -66,6 +82,13 @@ namespace wpfScope
             NotifyPropertyChanged(RightCapPropertyName);
         }
 
+        /// <summary>
+        /// Updates the vertical guideline.
+        /// </summary>
+        /// <param name="x1">The top x.</param>
+        /// <param name="y1">The top y.</param>
+        /// <param name="x2">The bottom x.</param>
+        /// <param name="y2">The bottom y.</param>
         public void UpdateVerticalGuideline(double x1, double y1, double x2, double y2)
         {
             TopCap.Update(x1 - _capLength, y1,
@@ -84,6 +107,7 @@ namespace wpfScope
 
         #region INotifyPropertyChanged Members
 
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(string propertyName)

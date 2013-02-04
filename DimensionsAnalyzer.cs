@@ -7,6 +7,13 @@ using System.Windows.Media.Imaging;
 
 namespace wpfScope
 {
+    /// <summary>
+    /// This analyzer does all the background work of figuring out guidelines and dimensions.
+    /// 
+    /// Given a bitmap, calculates the dimensions of the space around a given cursor position.
+    /// 
+    /// TODO.byip: Decouple this from the view. Move BackgroundWorker code into here.
+    /// </summary>
     public class DimensionsAnalyzer : INotifyPropertyChanged
     {
         #region Private Fields
@@ -18,6 +25,9 @@ namespace wpfScope
 
         #region Properties
 
+        /// <summary>
+        /// The current position of the cursor w.r.t. the top-left corner of the screenshot.
+        /// </summary>
         public static readonly string CursorPositionPropertyName = "CursorPosition";
         private System.Windows.Point _cursorPosition;
         public System.Windows.Point CursorPosition
@@ -35,12 +45,15 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// A formatted string with the dimensions of the area around the current cursor position.
+        /// </summary>
         public static readonly string DimensionsStringPropertyName = "DimensionsString";
         private string _dimensionsString;
         public string DimensionsString
         {
             get { return _dimensionsString; }
-            set
+            private set
             {
                 if (_dimensionsString != value)
                 {
@@ -50,12 +63,15 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// The coordinates of the lines that make up the guidelines in the view.
+        /// </summary>
         public static readonly string GuidelineCoordinatesPropertyName = "GuidelineCooordinates";
         private GuidelineCoordinates _guidelineCoordinates;
         public GuidelineCoordinates GuidelineCoordinates
         {
             get { return _guidelineCoordinates; }
-            set
+            private set
             {
                 if (_guidelineCoordinates != value)
                 {
@@ -65,14 +81,22 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// The location of the view.
+        /// 
+        /// TODO.byip: This is only used in the BackgroundWorker, so we can get rid of this once that code is moved in.
+        /// </summary>
         public System.Windows.Point Location { get; set; }
 
+        /// <summary>
+        /// The bitmap of the screenshot. Used for calculating the guidelines.
+        /// </summary>
         public static readonly string ScreenshotBitmapPropertyName = "ScreenshotBitmap";
         private Bitmap _screenshotBitmap;
         public Bitmap ScreenshotBitmap
         { 
             get { return _screenshotBitmap; }
-            set
+            private set
             {
                 if (_screenshotBitmap != value)
                 {
@@ -82,12 +106,18 @@ namespace wpfScope
             }
         }
         
+        /// <summary>
+        /// The image source of the bitmap. Used for grabbing non-byte information from the bitmap, like
+        /// size, and for displaying in the view.
+        /// 
+        /// This must be frozen!
+        /// </summary>
         public static readonly string ScreenshotImagePropertyName = "ScreenshotImage";
         private BitmapSource _screenshotImage;
         public BitmapSource ScreenshotImage
         {
             get { return _screenshotImage; }
-            set
+            private set
             {
                 if (_screenshotImage != value)
                 {
@@ -97,12 +127,20 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// The size of the view.
+        /// 
+        /// TODO.byip: This is only used in the BackgroundWorker, so we can get rid of this once that code is moved in.
+        /// </summary>
         public System.Windows.Size Size { get; set; }
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public DimensionsAnalyzer()
         {
             GuidelineCoordinates = new GuidelineCoordinates();
@@ -112,6 +150,10 @@ namespace wpfScope
 
         #region API
 
+        /// <summary>
+        /// Updates the bitmap and the dimensions calculation.
+        /// </summary>
+        /// <param name="bmp">The bitmap to use to calculate guidelines.</param>
         public void UpdateScreenshot(Bitmap bmp)
         {
             if (bmp != null)
@@ -149,11 +191,22 @@ namespace wpfScope
 
         #region Helper Methods
 
-        private void UpdateDimensionString(int left, int right, int top, int bottom)
+        /// <summary>
+        /// Formats the given dimensions as a string to be consumed by the view.
+        /// </summary>
+        /// <param name="left">The leftmost point of the horizontal guideline.</param>
+        /// <param name="right">The rightmost point of the horizontal guideline.</param>
+        /// <param name="top">The topmost point of the vertical guideline.</param>
+        /// <param name="bottom">The bottommost point of the vertical guideline.</param>
+        /// <returns>A formatted string with the dimensions of the current guidelines.</returns>
+        private string UpdateDimensionString(int left, int right, int top, int bottom)
         {
-            DimensionsString = String.Format("{0} x {1} px", Math.Max(right - left + 1, 0), Math.Max(bottom - top + 1, 0));
+            return String.Format("{0} x {1} px", Math.Max(right - left + 1, 0), Math.Max(bottom - top + 1, 0));
         }
 
+        /// <summary>
+        /// Updates the guidelines using the cursor and bitmap properties.
+        /// </summary>
         private void UpdateGuidelines()
         {
             bool shouldUpdate = false;
@@ -208,9 +261,11 @@ namespace wpfScope
                                                                right, cy);
                 GuidelineCoordinates.UpdateVerticalGuideline(cx, top,
                                                              cx, bottom);
+
+                // Manually update, as we are modifying the properties OF the GuidelineCoordinates.
                 NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
 
-                UpdateDimensionString(left, right, top, bottom);
+                DimensionsString = UpdateDimensionString(left, right, top, bottom);
             }
         }
 
@@ -218,6 +273,7 @@ namespace wpfScope
 
         #region INotifyPropertyChanged Members
 
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(string propertyName)
@@ -231,6 +287,9 @@ namespace wpfScope
         #endregion
     }
 
+    /// <summary>
+    /// Allows access to Win32 API methods.
+    /// </summary>
     public class Win32API
     {
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]

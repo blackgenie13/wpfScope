@@ -2,13 +2,22 @@
 
 namespace wpfScope
 {
+    /// <summary>
+    /// Holds the coordinates for a single line.
+    /// </summary>
     public class LineCoordinates
     {
         #region Properties
 
+        /// <summary>
+        /// The first point of the line.
+        /// </summary>
         private Point _start;
         public Point Start { get { return _start; } }
 
+        /// <summary>
+        /// The second point of the line.
+        /// </summary>
         private Point _end;
         public Point End { get { return _end; } }
 
@@ -16,8 +25,16 @@ namespace wpfScope
 
         #region Constructors
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public LineCoordinates() : this(new Point(), new Point()) { }
 
+        /// <summary>
+        /// Constructor that initializes a line for given points.
+        /// </summary>
+        /// <param name="start">The first point of the line.</param>
+        /// <param name="end">The second point of the line.</param>
         public LineCoordinates(Point start, Point end)
         {
             _start = start;
@@ -28,6 +45,15 @@ namespace wpfScope
 
         #region API
 
+        /// <summary>
+        /// Updates the internal points.
+        /// 
+        /// Use this so that new points are not being created all the time.
+        /// </summary>
+        /// <param name="x1">The first point's x.</param>
+        /// <param name="y1">The first point's y.</param>
+        /// <param name="x2">The second point's x.</param>
+        /// <param name="y2">The second point's y.</param>
         public void Update(double x1, double y1, double x2, double y2)
         {
             _start.X = x1;

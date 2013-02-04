@@ -2,12 +2,15 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
 
 namespace wpfScope
 {
+    /// <summary>
+    /// The Dimensions view. Displays the desktop below the window and some guidelines that show the
+    /// dimensions in the space around the cursor.
+    /// </summary>
     public partial class DimensionsOverlay : MetroWindow
     {
         #region Private Fields
@@ -22,19 +25,25 @@ namespace wpfScope
         private bool _mouseOver;
 
         // Settings
-        private const bool _hideDebugControls = true;
+        private const bool _showDebugControls = false;
         private const int _updateFrequency = 500;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The analyzer for this view.
+        /// </summary>
         public DimensionsAnalyzer Analyzer { get; set; }
 
         #endregion
 
         #region Constructors
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public DimensionsOverlay()
         {
             InitializeComponent();
@@ -49,9 +58,11 @@ namespace wpfScope
             _freezeMouse = false;
             _mouseOver = false;
 
-            if (_hideDebugControls)
+            if (_showDebugControls)
             {
-                _windowFrameTextBlock.Visibility = Visibility.Hidden;
+#if DEBUG
+                _windowFrameTextBlock.Visibility = Visibility.Visible;
+#endif
             }
         }
 
@@ -59,6 +70,9 @@ namespace wpfScope
 
         #region Window Overrides
 
+        /// <summary>
+        /// When the window is initialized, add all our handlers and disable the guidelines.
+        /// </summary>
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
@@ -71,6 +85,9 @@ namespace wpfScope
             DisableGuides();
         }
 
+        /// <summary>
+        /// Updates the frame's location and size.
+        /// </summary>
         protected override void OnLocationChanged(EventArgs e)
         {
             base.OnLocationChanged(e);
@@ -78,6 +95,9 @@ namespace wpfScope
             UpdateFrame();
         }
 
+        /// <summary>
+        /// Updates the frame's location and size.
+        /// </summary>
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -85,6 +105,10 @@ namespace wpfScope
             UpdateFrame();
         }
 
+        /// <summary>
+        /// When the state of the window changes, we need to make sure to update the size, location and
+        /// whether we want to continue updating the analyzer.
+        /// </summary>
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
@@ -92,6 +116,8 @@ namespace wpfScope
             switch (WindowState)
             {
                 case WindowState.Maximized:
+                    // TODO.byip: THIS DOESN'T ACTUALLY WORK. The size and location of a window don't get updated
+                    //            when the window gets maximized.
                     UpdateFrame();
                     EnableAnalysisUpdate();
                     break;
@@ -109,6 +135,9 @@ namespace wpfScope
 
         #region Canvas Mouse Event Handlers
 
+        /// <summary>
+        /// When the cursor leaves the canvas, turn off the guidelines unless the cursor has been frozen.
+        /// </summary>
         private void _overlayCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
             _mouseOver = false;
@@ -116,12 +145,18 @@ namespace wpfScope
             if (!_freezeMouse) { DisableGuides(); }
         }
 
+        /// <summary>
+        /// Turn on guidelines when the user is moving around in the canvas.
+        /// </summary>
         private void _overlayCanvas_MouseEnter(object sender, MouseEventArgs e)
         {
             _mouseOver = true;
             EnableGuides();
         }
 
+        /// <summary>
+        /// Update the guidelines as the user moves around the canvas.
+        /// </summary>
         private void _overlayCanvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (!_freezeMouse)
@@ -163,6 +198,9 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// If the user clicks somewhere, freeze/unfreeze the cursor.
+        /// </summary>
         private void _overlayCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             _freezeMouse = !_freezeMouse;
@@ -172,6 +210,9 @@ namespace wpfScope
 
         #region Helper Methods
 
+        /// <summary>
+        /// Turn off the analyzer.
+        /// </summary>
         private void DisableAnalysisUpdate()
         {
             lock (_lock)
@@ -180,6 +221,9 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// Turn on the analyzer.
+        /// </summary>
         private void EnableAnalysisUpdate()
         {
             lock (_lock)
@@ -188,6 +232,9 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// Hide the guidelines.
+        /// </summary>
         private void DisableGuides()
         {
             _dimensionsTextBlockBorder.Visibility = System.Windows.Visibility.Hidden;
@@ -199,6 +246,9 @@ namespace wpfScope
             _verticalGuidelineBottomCap.Visibility = System.Windows.Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Show the guidelines.
+        /// </summary>
         private void EnableGuides()
         {
             if (_mouseOver)
@@ -213,12 +263,17 @@ namespace wpfScope
             }
         }
 
+        /// <summary>
+        /// Update the Analyzer's size and location.
+        /// </summary>
         private void UpdateFrame()
         {
             Analyzer.Location = new Point(Left, Top + TitlebarHeight);
             Analyzer.Size = new Size(ActualWidth, ActualHeight - TitlebarHeight);
 
+#if DEBUG
             _windowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
+#endif
         }
 
         #endregion

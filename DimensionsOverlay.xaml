@@ -40,7 +40,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <!--ColumnDefinition Width="0.5*" /-->
+                    <!--ColumnDefinition Width="0.5*" /--><!-- Used for the debug view. -->
                 </Grid.ColumnDefinitions>
                 <Canvas x:Name="_overlayCanvas" x:FieldModifier="private" Grid.Column="0" Background="#01000000"
                         RenderOptions.EdgeMode="Aliased" SnapsToDevicePixels="True">
@@ -92,8 +92,10 @@
                 <TextBlock x:Name="_windowFrameTextBlock" x:FieldModifier="private" Grid.Column="0"
                            Background="Gray" Foreground="White"
                            Margin="10" Padding="3" 
-                           HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                           Visibility="Hidden"/>
 
+                <!-- Some debug views. -->
                 <!--Rectangle Fill="White" Grid.Column="1" />
                 <Image x:Name="ScreenshotImage" Source="{Binding Analyzer.ScreenshotImage}" Stretch="UniformToFill" Grid.Column="1" />
                 <Canvas x:Name="_screenshotImageCanvas" x:FieldModifier="private" Grid.Column="1">

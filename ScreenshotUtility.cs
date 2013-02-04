@@ -4,11 +4,21 @@ using System.Drawing.Imaging;
 
 namespace wpfScope
 {
-    internal class ScreenshotUtility
+    /// <summary>
+    /// Creates screenshots on the desktop.
+    /// </summary>
+    public class ScreenshotUtility
     {
         /// <summary>
-        /// http://pastie.org/pastes/1546855/text
+        /// Creates a screenshot of the desktop given an origin (x, y) and size width x height.
+        /// 
+        /// Ripped from: http://pastie.org/pastes/1546855/text
         /// </summary>
+        /// <param name="x">The x of the origin.</param>
+        /// <param name="y">The y of the origin.</param>
+        /// <param name="width">The width of the screenshot.</param>
+        /// <param name="height">The height of the screenshot.</param>
+        /// <returns></returns>
         public static Bitmap ScreenshotRegion(int x, int y, int width, int height)
         {
             Bitmap bmp = null;
