@@ -150,42 +150,6 @@ namespace wpfScope
 
         #endregion
 
-        #region Update Background Worker Handlers
-
-        private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            // Do this every 0.5s.
-            while (true)
-            {
-                bool shouldUpdateAnalysis;
-                lock (_lock)
-                {
-                    shouldUpdateAnalysis = _shouldUpdateAnalysis;
-                }
-
-                if (shouldUpdateAnalysis)
-                {
-#if WINDOWS8
-                    // TODO.byip: Figure out a better way to do this, because the guides flicker.
-                    //
-                    // Hides the guides.
-                    this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
-#endif
-                    // Take the screenshot.
-                    UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)_location.X, (int)_location.Y,
-                                                                        (int)_size.Width, (int)_size.Height));
-#if WINDOWS8
-                    // Show the guides.
-                    this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });
-#endif
-                }
-
-                System.Threading.Thread.Sleep(_updateFrequency);
-            }
-        }
-
-        #endregion
-
         #region API
 
         /// <summary>
@@ -348,6 +312,42 @@ namespace wpfScope
                     }
                 }
 
+            }
+        }
+
+        #endregion
+
+        #region Update Background Worker Handlers
+
+        private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // Do this every 0.5s.
+            while (true)
+            {
+                bool shouldUpdateAnalysis;
+                lock (_lock)
+                {
+                    shouldUpdateAnalysis = _shouldUpdateAnalysis;
+                }
+
+                if (shouldUpdateAnalysis)
+                {
+#if WINDOWS8
+                    // TODO.byip: Figure out a better way to do this, because the guides flicker.
+                    //
+                    // Hides the guides.
+                    this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
+#endif
+                    // Take the screenshot.
+                    UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)_location.X, (int)_location.Y,
+                                                                        (int)_size.Width, (int)_size.Height));
+#if WINDOWS8
+                    // Show the guides.
+                    this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });
+#endif
+                }
+
+                System.Threading.Thread.Sleep(_updateFrequency);
             }
         }
 
