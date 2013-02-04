@@ -18,6 +18,7 @@ namespace wpfScope
         private BackgroundWorker _updateAnalysisWorker;
 
         // Mouse
+        private bool _freezeMouse;
         private bool _mouseOver;
 
         // Settings
@@ -45,6 +46,7 @@ namespace wpfScope
             _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
             _updateAnalysisWorker.RunWorkerAsync();
 
+            _freezeMouse = false;
             _mouseOver = false;
 
             if (_hideDebugControls)
@@ -64,6 +66,7 @@ namespace wpfScope
             _overlayCanvas.MouseEnter += _overlayCanvas_MouseEnter;
             _overlayCanvas.MouseLeave += _overlayCanvas_MouseLeave;
             _overlayCanvas.MouseMove += _overlayCanvas_MouseMove;
+            _overlayCanvas.MouseDown += _overlayCanvas_MouseDown;
 
             DisableGuides();
         }
@@ -109,7 +112,8 @@ namespace wpfScope
         private void _overlayCanvas_MouseLeave(object sender, MouseEventArgs e)
         {
             _mouseOver = false;
-            DisableGuides();
+
+            if (!_freezeMouse) { DisableGuides(); }
         }
 
         private void _overlayCanvas_MouseEnter(object sender, MouseEventArgs e)
@@ -120,40 +124,48 @@ namespace wpfScope
 
         private void _overlayCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            Analyzer.CursorPosition = e.MouseDevice.GetPosition(_overlayCanvas);
-
-            // Update dimensions text box position.
-            if (Analyzer.ScreenshotImage != null)
+            if (!_freezeMouse)
             {
-                // Figure out what quadrant the cursor is in.
-                int mx = (int)(0.5 * Analyzer.ScreenshotImage.Width);
-                int my = (int)(0.5 * Analyzer.ScreenshotImage.Height);
-                int cx = (int)Analyzer.CursorPosition.X;
-                int cy = (int)Analyzer.CursorPosition.Y;
+                Analyzer.CursorPosition = e.MouseDevice.GetPosition(_overlayCanvas);
 
-                int w = (int)_dimensionsTextBlockBorder.ActualWidth;
-                int h = (int)_dimensionsTextBlockBorder.ActualHeight;
-                int x = cx;
-                int y = cy;
-
-                int margin = 5;
-
-                if (cx > mx)
+                // Update dimensions text box position.
+                if (Analyzer.ScreenshotImage != null)
                 {
-                    x = cx - w - margin;
-                    if (cy < my) { y = cy + margin; } // I
-                    else { y = cy - h - margin; } // II
-                }
-                else
-                {
-                    x = cx + margin;
-                    if (cy < my) { x += 2 * margin; y = cy + margin; } // IV
-                    else { y = cy - h - margin; } // III
-                }
+                    // Figure out what quadrant the cursor is in.
+                    int mx = (int)(0.5 * Analyzer.ScreenshotImage.Width);
+                    int my = (int)(0.5 * Analyzer.ScreenshotImage.Height);
+                    int cx = (int)Analyzer.CursorPosition.X;
+                    int cy = (int)Analyzer.CursorPosition.Y;
 
-                Canvas.SetLeft(_dimensionsTextBlockBorder, x);
-                Canvas.SetTop(_dimensionsTextBlockBorder, y);
+                    int w = (int)_dimensionsTextBlockBorder.ActualWidth;
+                    int h = (int)_dimensionsTextBlockBorder.ActualHeight;
+                    int x = cx;
+                    int y = cy;
+
+                    int margin = 5;
+
+                    if (cx > mx)
+                    {
+                        x = cx - w - margin;
+                        if (cy < my) { y = cy + margin; } // I
+                        else { y = cy - h - margin; } // II
+                    }
+                    else
+                    {
+                        x = cx + margin;
+                        if (cy < my) { x += 2 * margin; y = cy + margin; } // IV
+                        else { y = cy - h - margin; } // III
+                    }
+
+                    Canvas.SetLeft(_dimensionsTextBlockBorder, x);
+                    Canvas.SetTop(_dimensionsTextBlockBorder, y);
+                }
             }
+        }
+
+        private void _overlayCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _freezeMouse = !_freezeMouse;
         }
 
         #endregion

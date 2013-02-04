@@ -126,6 +126,8 @@ namespace wpfScope
                         hbitmap = bmp.GetHbitmap();
 
                         ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        if (ScreenshotImage != null) { ScreenshotImage.Freeze(); }
+                        UpdateGuidelines();
                     }
                     catch (Exception e)
                     {
@@ -135,16 +137,7 @@ namespace wpfScope
                     }
                     finally
                     {
-                        if (ScreenshotImage != null)
-                        {
-                            ScreenshotImage.Freeze();
-                        }
-
-                        if (hbitmap != IntPtr.Zero)
-                        {
-                            Win32API.DeleteObject(hbitmap);
-                        }
-
+                        if (hbitmap != IntPtr.Zero) { Win32API.DeleteObject(hbitmap); }
                         GC.Collect();
                     }
                 }
