@@ -18,6 +18,15 @@ namespace wpfScope
     {
         #region Private Fields
 
+        // Background Worker
+        private object _lock = new object(); // NO HEISENBUGS.
+        private bool _shouldUpdateAnalysis;
+        private BackgroundWorker _updateAnalysisWorker;
+        private const int _updateFrequency = 500;
+
+        private System.Windows.Point _location;
+        private System.Windows.Size _size;
+
         // Sync bitmap updates.
         private object _bitmapLock = new object();
 
@@ -82,13 +91,6 @@ namespace wpfScope
         }
 
         /// <summary>
-        /// The location of the view.
-        /// 
-        /// TODO.byip: This is only used in the BackgroundWorker, so we can get rid of this once that code is moved in.
-        /// </summary>
-        public System.Windows.Point Location { get; set; }
-
-        /// <summary>
         /// The bitmap of the screenshot. Used for calculating the guidelines.
         /// </summary>
         public static readonly string ScreenshotBitmapPropertyName = "ScreenshotBitmap";
@@ -127,13 +129,6 @@ namespace wpfScope
             }
         }
 
-        /// <summary>
-        /// The size of the view.
-        /// 
-        /// TODO.byip: This is only used in the BackgroundWorker, so we can get rid of this once that code is moved in.
-        /// </summary>
-        public System.Windows.Size Size { get; set; }
-
         #endregion
 
         #region Constructor
@@ -144,6 +139,49 @@ namespace wpfScope
         public DimensionsAnalyzer()
         {
             GuidelineCoordinates = new GuidelineCoordinates();
+
+            _location = new System.Windows.Point();
+            _size = new System.Windows.Size();
+
+            _updateAnalysisWorker = new BackgroundWorker();
+            _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
+            _updateAnalysisWorker.RunWorkerAsync();
+        }
+
+        #endregion
+
+        #region Update Background Worker Handlers
+
+        private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // Do this every 0.5s.
+            while (true)
+            {
+                bool shouldUpdateAnalysis;
+                lock (_lock)
+                {
+                    shouldUpdateAnalysis = _shouldUpdateAnalysis;
+                }
+
+                if (shouldUpdateAnalysis)
+                {
+#if WINDOWS8
+                    // TODO.byip: Figure out a better way to do this, because the guides flicker.
+                    //
+                    // Hides the guides.
+                    this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
+#endif
+                    // Take the screenshot.
+                    UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)_location.X, (int)_location.Y,
+                                                                        (int)_size.Width, (int)_size.Height));
+#if WINDOWS8
+                    // Show the guides.
+                    this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });
+#endif
+                }
+
+                System.Threading.Thread.Sleep(_updateFrequency);
+            }
         }
 
         #endregion
@@ -151,40 +189,47 @@ namespace wpfScope
         #region API
 
         /// <summary>
-        /// Updates the bitmap and the dimensions calculation.
+        /// Turn off the analyzer.
         /// </summary>
-        /// <param name="bmp">The bitmap to use to calculate guidelines.</param>
-        public void UpdateScreenshot(Bitmap bmp)
+        public void DisableAnalysisUpdate()
         {
-            if (bmp != null)
+            lock (_lock)
             {
-                lock (_bitmapLock)
-                {
-                    IntPtr hbitmap = IntPtr.Zero;
-
-                    try
-                    {
-                        ScreenshotBitmap = bmp;
-                        hbitmap = bmp.GetHbitmap();
-
-                        ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        if (ScreenshotImage != null) { ScreenshotImage.Freeze(); }
-                        UpdateGuidelines();
-                    }
-                    catch (Exception e)
-                    {
-#if DEBUG
-                        System.Diagnostics.Debug.WriteLine(e);
-#endif
-                    }
-                    finally
-                    {
-                        if (hbitmap != IntPtr.Zero) { Win32API.DeleteObject(hbitmap); }
-                        GC.Collect();
-                    }
-                }
-
+                _shouldUpdateAnalysis = false;
             }
+        }
+
+        /// <summary>
+        /// Turn on the analyzer.
+        /// </summary>
+        public void EnableAnalysisUpdate()
+        {
+            lock (_lock)
+            {
+                _shouldUpdateAnalysis = true;
+            }
+        }
+
+        /// <summary>
+        /// Updates the location.
+        /// </summary>
+        /// <param name="x">New x.</param>
+        /// <param name="y">New y.</param>
+        public void UpdateLocation(double x, double y)
+        {
+            _location.X = x;
+            _location.Y = y;
+        }
+
+        /// <summary>
+        /// Updates the size.
+        /// </summary>
+        /// <param name="width">New width.</param>
+        /// <param name="height">New height.</param>
+        public void UpdateSize(double width, double height)
+        {
+            _size.Width = width;
+            _size.Height = height;
         }
 
         #endregion
@@ -266,6 +311,43 @@ namespace wpfScope
                 NotifyPropertyChanged(GuidelineCoordinatesPropertyName);
 
                 DimensionsString = UpdateDimensionString(left, right, top, bottom);
+            }
+        }
+
+        /// <summary>
+        /// Updates the bitmap and the dimensions calculation.
+        /// </summary>
+        /// <param name="bmp">The bitmap to use to calculate guidelines.</param>
+        private void UpdateScreenshot(Bitmap bmp)
+        {
+            if (bmp != null)
+            {
+                lock (_bitmapLock)
+                {
+                    IntPtr hbitmap = IntPtr.Zero;
+
+                    try
+                    {
+                        ScreenshotBitmap = bmp;
+                        hbitmap = bmp.GetHbitmap();
+
+                        ScreenshotImage = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        if (ScreenshotImage != null) { ScreenshotImage.Freeze(); }
+                        UpdateGuidelines();
+                    }
+                    catch (Exception e)
+                    {
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine(e);
+#endif
+                    }
+                    finally
+                    {
+                        if (hbitmap != IntPtr.Zero) { Win32API.DeleteObject(hbitmap); }
+                        GC.Collect();
+                    }
+                }
+
             }
         }
 

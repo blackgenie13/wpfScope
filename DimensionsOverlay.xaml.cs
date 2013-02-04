@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,18 +14,12 @@ namespace wpfScope
     {
         #region Private Fields
 
-        // Background Worker
-        private object _lock = new object(); // NO HEISENBUGS.
-        private bool _shouldUpdateAnalysis;
-        private BackgroundWorker _updateAnalysisWorker;
-
         // Mouse
         private bool _freezeMouse;
         private bool _mouseOver;
 
         // Settings
         private const bool _showDebugControls = false;
-        private const int _updateFrequency = 500;
 
         #endregion
 
@@ -50,10 +43,7 @@ namespace wpfScope
             DataContext = this;
 
             Analyzer = new DimensionsAnalyzer();
-            EnableAnalysisUpdate();
-            _updateAnalysisWorker = new BackgroundWorker();
-            _updateAnalysisWorker.DoWork += _updateAnalysisWorker_DoWork;
-            _updateAnalysisWorker.RunWorkerAsync();
+            Analyzer.EnableAnalysisUpdate();
 
             _freezeMouse = false;
             _mouseOver = false;
@@ -119,14 +109,14 @@ namespace wpfScope
                     // TODO.byip: THIS DOESN'T ACTUALLY WORK. The size and location of a window don't get updated
                     //            when the window gets maximized.
                     UpdateFrame();
-                    EnableAnalysisUpdate();
+                    Analyzer.EnableAnalysisUpdate();
                     break;
                 case WindowState.Minimized:
-                    DisableAnalysisUpdate();
+                    Analyzer.DisableAnalysisUpdate();
                     break;
                 case WindowState.Normal:
                     UpdateFrame();
-                    EnableAnalysisUpdate();
+                    Analyzer.EnableAnalysisUpdate();
                     break;
             }
         }
@@ -211,28 +201,6 @@ namespace wpfScope
         #region Helper Methods
 
         /// <summary>
-        /// Turn off the analyzer.
-        /// </summary>
-        private void DisableAnalysisUpdate()
-        {
-            lock (_lock)
-            {
-                _shouldUpdateAnalysis = false;
-            }
-        }
-
-        /// <summary>
-        /// Turn on the analyzer.
-        /// </summary>
-        private void EnableAnalysisUpdate()
-        {
-            lock (_lock)
-            {
-                _shouldUpdateAnalysis = true;
-            }
-        }
-
-        /// <summary>
         /// Hide the guidelines.
         /// </summary>
         private void DisableGuides()
@@ -268,51 +236,12 @@ namespace wpfScope
         /// </summary>
         private void UpdateFrame()
         {
-            Analyzer.Location = new Point(Left, Top + TitlebarHeight);
-            Analyzer.Size = new Size(ActualWidth, ActualHeight - TitlebarHeight);
+            Analyzer.UpdateLocation(Left, Top + TitlebarHeight);
+            Analyzer.UpdateSize(ActualWidth, ActualHeight - TitlebarHeight);
 
 #if DEBUG
             _windowFrameTextBlock.Text = String.Format("({0}, {1}) {2} x {3}", Top, Left, ActualWidth, ActualHeight);
 #endif
-        }
-
-        #endregion
-
-        #region Update Background Worker Handlers
-
-        private void _updateAnalysisWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            // Do this every 0.5s.
-            while (true)
-            {
-                bool shouldUpdateAnalysis;
-                lock (_lock)
-                {
-                    shouldUpdateAnalysis = _shouldUpdateAnalysis;
-                }
-
-                if (shouldUpdateAnalysis)
-                {
-                    if (Analyzer != null)
-                    {
-#if WINDOWS8
-                        // TODO.byip: Figure out a better way to do this, because the guides flicker.
-                        //
-                        // Hides the guides.
-                        this.Dispatcher.BeginInvoke((Action)delegate(){ DisableGuides(); });
-#endif
-                        // Take the screenshot.
-                        Analyzer.UpdateScreenshot(ScreenshotUtility.ScreenshotRegion((int)Analyzer.Location.X, (int)Analyzer.Location.Y,
-                                                                                     (int)Analyzer.Size.Width, (int)Analyzer.Size.Height));
-#if WINDOWS8
-                        // Show the guides.
-                        this.Dispatcher.BeginInvoke((Action)delegate() { EnableGuides(); });
-#endif
-                    }
-                }
-
-                System.Threading.Thread.Sleep(_updateFrequency);
-            }
         }
 
         #endregion
