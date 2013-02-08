@@ -2,6 +2,10 @@
 
 A clone of some [xScope](http://iconfactory.com/software/xscope) functionality for Windows written in C# using WPF.
 
+## Downloads
+
++ [wpfScope for Windows 7](http://sourceforge.net/projects/wpfscope/files/wpfScope%20for%20Windows%207.exe/download)
+
 ## Running
 
 ### Requirements
